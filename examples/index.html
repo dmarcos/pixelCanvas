@@ -6,10 +6,58 @@
 </head>
 <body>
   <div id="content">
-    <canvas id="pixelCanvas" style="display: none" width="800" height="600"></canvas> 
+    <canvas id="pixelCanvas" width="800" height="600"></canvas> 
   </div> 
 </body>
-<script src="./js/require.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="/js/lib/remoteFits/deflateOld.js" type="text/javascript"></script>
+<script src="/js/lib/remoteFits/jdataview.js" type="text/javascript"></script>
+<script src="/js/lib/remoteFits/binaryajax.js" type="text/javascript"></script>
+<script src="/js/lib/require.js" type="text/javascript"></script>
 <script> 
+  var png; 
+
+  var mapPixelsToRGBA = function (pixels, maxValue, minValue) {
+    var mappedValue; 
+    var mappedPixels = [];
+    var valuesRange = maxValue - minValue;
+    for (var i = 0; i < pixels.length; ++i) {
+      mappedValue = maxValue * ((pixels[i] - minValue) / valuesRange);
+      mappedPixels.push(mappedValue);
+      mappedPixels.push(mappedValue);
+      mappedPixels.push(mappedValue);
+      mappedPixels.push(255);
+    }
+    return mappedPixels;
+  };
+
+  var pixelCanvas = require(['/js/pixelCanvas.js', '/js/lib/pngParser.js'], function (pixelCanvas, pngParser) {
+    PNG = pngParser;
+    BinaryAjax("/images/ngc2967-z_16bit_wHAT_crush.png", function(oHTTP) {
+    //var data, image;
+    var pngImage = new PNG(oHTTP.responseText);
+    var height = pngImage.height;
+    var pixels = [];
+    var rgbaPixels;
+    var canvas = document.getElementById('pixelCanvas');
+    for (var i = 0; i < pngImage.height; ++i) {
+      pixels = pixels.concat(pngImage.read_line());
+    }
+    rgbaPixels = mapPixelsToRGBA(pixels, pngImage.max_pixel, pngImage.min_pixel);
+    console.log(rgbaPixels.length);
+    pixelCanvas.drawPixels(rgbaPixels, canvas);
+   
+
+    //layers.push(init_layer(oHTTP.responseText));
+    //if (layers.length === 3) {
+    //  canvas.attr("width", layers[0].width);
+    //  canvas.attr("height", layers[0].height);
+    //  image = context.getImageData(0, 0, layers[0].width, layers[0].height);
+    //  data = calibrate_layers(image.data);
+    //  image.data = data;
+    //  return context.putImageData(image, 0, 0);
+    //}
+    });
+  });
 </script>
 </html>
