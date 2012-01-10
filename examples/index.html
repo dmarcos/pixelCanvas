@@ -45,8 +45,7 @@
     }
     rgbaPixels = mapPixelsToRGBA(pixels, pngImage.max_pixel, pngImage.min_pixel);
     console.log(rgbaPixels.length);
-    pixelCanvas.drawPixels(rgbaPixels, canvas);
-   
+    pixelCanvas.drawPixels(rgbaPixels, pngImage.height, pngImage.width, canvas);
 
     //layers.push(init_layer(oHTTP.responseText));
     //if (layers.length === 3) {
