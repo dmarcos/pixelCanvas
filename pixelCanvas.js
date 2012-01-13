@@ -84,6 +84,8 @@ define(function () {
     renderPixels(pixels, width, height, offScreenCanvas);
     draw();
 
+    return offScreenCanvas;
+
   };
 
   return {  
