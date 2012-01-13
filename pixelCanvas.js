@@ -99,7 +99,7 @@ define(function () {
   };
 
   return {  
-    'drawPixels' : drawPixels
+    'drawPixels' : drawPixels,
     'filter' : filters 
   };
 
