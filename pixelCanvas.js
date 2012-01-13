@@ -100,7 +100,7 @@ define(function () {
 
   return {  
     'drawPixels' : drawPixels,
-    'filter' : filters 
+    'filters' : filters 
   };
 
 });
