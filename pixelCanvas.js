@@ -19,11 +19,13 @@ define(function () {
   var mouseDown = false;
   var zoomFactor = 1;
 
+  var filters = {};
+  var texture;
+
   var renderPixels = function (pixels, width, height, canvas) {
     var byteBuffer = new ArrayBuffer(pixels.length);
     var byteUIntBuffer = new Uint8Array(byteBuffer); 
     var pixelIndex = 0;
-    var texture;
     while (pixelIndex < pixels.length) {
       byteUIntBuffer[pixelIndex] = pixels[pixelIndex];
       byteUIntBuffer[pixelIndex + 1] = pixels[pixelIndex + 1];
@@ -88,8 +90,17 @@ define(function () {
 
   };
 
+  filters.brightnessContrast = function(brightness, contrast){
+    if(!offScreenCanvas) {
+      return;
+    }
+    offScreenCanvas.draw(texture).brightnessContrast(brightness,contrast).update();
+    draw();
+  };
+
   return {  
-    'drawPixels' : drawPixels 
+    'drawPixels' : drawPixels
+    'filter' : filters 
   };
 
 });
