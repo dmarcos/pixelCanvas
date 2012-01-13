@@ -19,19 +19,32 @@ define(function () {
   var mouseDown = false;
   var zoomFactor = 1;
 
-  var renderPixels = function (pixels, canvas) {
-    var context = canvas.getContext("2d");
-    var image = context.createImageData(canvas.getAttribute('width'), canvas.getAttribute('height'));
+  var renderPixels = function (pixels, width, height, canvas) {
+    var byteBuffer = new ArrayBuffer(pixels.length);
+    var byteUIntBuffer = new Uint8Array(byteBuffer); 
     var pixelIndex = 0;
+    var texture;
     while (pixelIndex < pixels.length) {
-      image.data[pixelIndex] = pixels[pixelIndex];
-      image.data[pixelIndex + 1] = pixels[pixelIndex + 1];
-      image.data[pixelIndex + 2] = pixels[pixelIndex + 2];
-      image.data[pixelIndex + 3] = pixels[pixelIndex + 3];
+      byteUIntBuffer[pixelIndex] = pixels[pixelIndex];
+      byteUIntBuffer[pixelIndex + 1] = pixels[pixelIndex + 1];
+      byteUIntBuffer[pixelIndex + 2] = pixels[pixelIndex + 2];
+      byteUIntBuffer[pixelIndex + 3] = pixels[pixelIndex + 3];
       pixelIndex += 4;
-    }
-    context.clearRect(0, 0, canvas.getAttribute('width'), canvas.getAttribute('height'));
-    context.putImageData(image, 0, 0);
+    } 
+    texture = offScreenCanvas.texture(byteBuffer, width, height);
+    canvas.draw(texture).update();
+    //var context = canvas.getContext("2d");
+    //var image = context.createImageData(canvas.getAttribute('width'), canvas.getAttribute('height'));
+    //var pixelIndex = 0;
+    //while (pixelIndex < pixels.length) {
+    //  image.data[pixelIndex] = pixels[pixelIndex];
+    //  image.data[pixelIndex + 1] = pixels[pixelIndex + 1];
+    //  image.data[pixelIndex + 2] = pixels[pixelIndex + 2];
+    //  image.data[pixelIndex + 3] = pixels[pixelIndex + 3];
+    //  pixelIndex += 4;
+    //}
+    //context.clearRect(0, 0, canvas.getAttribute('width'), canvas.getAttribute('height'));
+    //context.putImageData(image, 0, 0);
   };
 
   var draw = function() {
@@ -39,7 +52,7 @@ define(function () {
     onScreenContext.drawImage(offScreenCanvas, viewportPosition.x, viewportPosition.y, viewportWidth, viewportHeight, 0, 0, onScreenCanvasWidth, onScreenCanvasHeight);
   };
   
-  var drawPixels = function (pixels, height, width, canvas) {   
+  var drawPixels = function (pixels, width, height, canvas) {   
     //canvas.onmousedown = buttonPressed;
     //canvas.onmouseup = buttonReleased;
     //canvas.addEventListener('mousemove', mouseMoved, false);
@@ -47,12 +60,13 @@ define(function () {
     //canvas.addEventListener('mousewheel', wheelMoved, false);
     //canvas.ondblclick = doubleClick;
 
-    offScreenCanvas = document.createElement('canvas');
+    offScreenCanvas = fx.canvas(); // document.createElement('canvas');
     offScreenContext = offScreenCanvas.getContext('2d');
-    offScreenCanvas.setAttribute('width', height);
-    offScreenCanvas.setAttribute('height', width);
-    offScreenCanvasWidth = height;
-    offScreenCanvasHeight = width;
+   
+    offScreenCanvas.setAttribute('width', width);
+    offScreenCanvas.setAttribute('height', height);
+    offScreenCanvasWidth = width;
+    offScreenCanvasHeight = height;
 
     onScreenCanvas = canvas;
     onScreenContext = onScreenCanvas.getContext('2d');
@@ -62,14 +76,12 @@ define(function () {
     viewportHeight = offScreenCanvasHeight >= viewportHeight? viewportHeight : offScreenCanvasHeight;
     onScreenCanvasWidth = viewportWidth;
     onScreenCanvasHeight = viewportHeight;
-    //onScreenCanvas.style.width = viewportWidth + 'px';
-    //onScreenCanvas.style.height = viewportHeight + 'px';
 
     onScreenCanvas.onselectstart = function () { return false; }; // ie 
 
     zoomFactor = 1;
 
-    renderPixels(pixels, offScreenCanvas);
+    renderPixels(pixels, width, height, offScreenCanvas);
     draw();
 
   };
